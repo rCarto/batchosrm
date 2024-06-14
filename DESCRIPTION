@@ -1,0 +1,22 @@
+Package: batchosrm
+Title: Access to the OpenStreetMap-Based Routing Service OSRM for Fast Route Extraction
+Version: 0.1.0
+Authors@R: person("Timothée", "Giraud", email = "timothee.giraud@cnrs.fr",
+    role = c("cre","aut"),  comment = c(ORCID = "0000-0002-1932-3323"))
+Description: An interface between R and the 'OSRM' API. 'OSRM' is a routing
+    service based on 'OpenStreetMap' data. See <http://project-osrm.org/> for more
+    information. This package enables the computation of routes.
+License: GPL (>= 3)
+Imports: 
+    RcppSimdJson,
+    curl,
+    utils, 
+    googlePolylines,
+    sf,
+    parallel,
+    doParallel, 
+    foreach
+Suggests : osrm, mapsf
+Encoding: UTF-8
+Roxygen: list(markdown = TRUE)
+RoxygenNote: 7.3.1
