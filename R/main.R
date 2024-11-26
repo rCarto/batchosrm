@@ -1,16 +1,17 @@
 #' @title Get Routes
 #' @description
-#' A short description...
+#' This function enables the fast computation of routes.
 #'
-#' @param x dataframe with x_src, y_src, x_dst, y_dst in epsg:4326
-#' @param overview overview (FALSE, "simplified" or "full)
+#' @param x dataframe with x_src, y_src, x_dst, y_dst in WGS84 coordinates
+#' (EPSG:4326)
+#' @param overview overview (FALSE, "simplified" or "full")
 #' @param nc number of CPU cores
 #' @param nq number of queries per chunk
-#' @param server server address
-#' @param profile profil
+#' @param server OSRM server address
+#' @param profile OSRM profile
 #' @importFrom foreach foreach %dopar%
 #' @export
-#' @return smg
+#' @return An sf object or a data.frame is returned.
 #' @examples
 #' \dontrun{
 #' library(osrm)

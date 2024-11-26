@@ -7,23 +7,24 @@
 routes(x, overview = "simplified", nc = 1, nq = 100, server, profile = "car")
 }
 \arguments{
-\item{x}{dataframe with x_src, y_src, x_dst, y_dst in epsg:4326}
+\item{x}{dataframe with x_src, y_src, x_dst, y_dst in WGS84 coordinates
+(EPSG:4326)}
 
-\item{overview}{overview (FALSE, "simplified" or "full)}
+\item{overview}{overview (FALSE, "simplified" or "full")}
 
 \item{nc}{number of CPU cores}
 
 \item{nq}{number of queries per chunk}
 
-\item{server}{server address}
+\item{server}{OSRM server address}
 
-\item{profile}{profil}
+\item{profile}{OSRM profile}
 }
 \value{
-smg
+An sf object or a data.frame is returned.
 }
 \description{
-A short description...
+This function enables the fast computation of routes.
 }
 \examples{
 \dontrun{
