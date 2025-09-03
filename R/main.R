@@ -90,6 +90,9 @@ cp <- function(q, req_handle){
       curl::handle_setopt(req_handle, useragent = "osrm_R_package")
       r <- curl::curl_fetch_memory(q, handle = req_handle)
       res <- RcppSimdJson::fparse(rawToChar(r$content))
+      if (res$code != "Ok") {
+        return(c(duration = NA, distance = NA))
+      }
       round(c(duration = res$routes$duration / 60, distance = res$routes$distance / 1000),2)
     },
     error = function(cond){
@@ -105,10 +108,15 @@ cpgeom <- function(q, req_handle){
       curl::handle_setopt(req_handle, useragent = "osrm_R_package")
       r <- curl::curl_fetch_memory(q, handle = req_handle)
       res <- RcppSimdJson::fparse(rawToChar(r$content))
+      if (res$code != "Ok") {
+        return(sf::st_sf(duration = NA, distance = NA,
+                         geometry = sf::st_sfc(sf::st_linestring()),
+                         crs = "EPSG:4326"))
+      }
       geodf <- googlePolylines::decode(res$routes$geometry)[[1]][, c(2, 1)]
       # Convert to LINESTRING
       rcoords <- paste0(geodf$lon, " ", geodf$lat, collapse = ", ")
-      rosf <- sf::st_sf(
+      sf::st_sf(
         duration = round(res$routes$duration / 60, 2),
         distance = round(res$routes$distance / 1000, 2),
         geometry = sf::st_as_sfc(paste0("LINESTRING(", rcoords, ")")),
@@ -117,7 +125,8 @@ cpgeom <- function(q, req_handle){
     },
     error = function(cond){
       sf::st_sf(duration = NA, distance = NA,
-                geometry = sf::st_sfc(sf::st_linestring()), crs = "EPSG:4326")
+                geometry = sf::st_sfc(sf::st_linestring()),
+                crs = "EPSG:4326")
     }
   )
 }
