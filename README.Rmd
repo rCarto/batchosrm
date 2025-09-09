@@ -10,55 +10,66 @@ output: github_document
 
 An interface between R and the OSRM API. [OSRM](https://github.com/Project-OSRM/osrm-backend) is a routing service based on [OpenStreetMap](http://project-osrm.org) data.   
 
-This single function package enables the fast computation of routes and is a much faster alternative to repeated calls to [`osrm::osrmRoute()`](https://github.com/riatelab/osrm). 
+This package enables the fast computation of routes and is a much faster alternative to repeated calls to [`osrm::osrmRoute()`](https://github.com/riatelab/osrm). 
 
 
 ## Installation
 
-You can install the development version of batchosrm with:
+You can install the development version of `batchosrm` with:
 
 ``` r
 remotes::install_github("rCarto/batchosrm")
 ```
 
 ## Example
-
 ``` r
 library(tictoc)
 library(batchosrm)
-library(mapsf)
-
-# build a large dataset of origins and destination from osrm package sample dataset
-apt <- read.csv(system.file("csv/apotheke.csv", package = "osrm"))
-set.seed(42)
-o <- sample(1:100, 1000, replace = T)
-set.seed(666)
-d <- sample(1:100, 1000, replace = T)
-x <- cbind(apt[o, c(2:3)], apt[d, c(2:3)])
-row.names(x) <- 1:nrow(x)
-
-# Query duration, distance and geometry
-tic()
-r <- routes(x, nc = 8, nq = 50, server = "http://0.0.0.0:5000/", overview = "full")
+x <- read.csv(system.file("csv/berlin.csv", package = "batchosrm"))
+tic(msg = "Query durations, distances and geometries")
+res <- routes(
+  x = x[1:2000,],
+  overview = TRUE,
+  max_radius = 1000,
+  nc = 8,
+  nq = 150,
+  server = "http://0.0.0.0:5000/",
+  profile = "car"
+)
 toc()
-#> 5.46 sec elapsed
+#> Query durations, distances and geometries: 4.228 sec elapsed
 
-mf_map(r, col = "#94000010", lwd = 1)
+library(sf)
+#> Linking to GEOS 3.13.1, GDAL 3.10.3, PROJ 9.6.0; sf_use_s2() is TRUE
+library(mapsf)
+mf_theme("dracula")
+st_transform(res, "EPSG:3035") |>
+  mf_map(col = "#ffffff05", lwd = 1.2)
+mf_title("Berlin")
 ```
-![](https://i.imgur.com/r9rDFbR.png)<!-- -->
+
+![](https://i.imgur.com/OSu4GlL.png)<!-- -->
 
 ``` r
-# Query only duration and distance
-tic()
-z <- routes(x, nc = 8, nq = 50, server = "http://0.0.0.0:5000/", overview = FALSE)
+
+tic(msg = "Query only durations and distances")
+rex <- routes(
+  x = x[1:2000,],
+  overview = FALSE,
+  max_radius = 1000,
+  nc = 8,
+  nq = 150,
+  server = "http://0.0.0.0:5000/",
+  profile = "car"
+)
 toc()
-#> 4.466 sec elapsed
-head(z)
-#>   duration distance
-#> 1    18.86     8.38
-#> 2    34.48    20.08
-#> 3    18.33     9.85
-#> 4    17.59     9.19
-#> 5    15.18     8.61
-#> 6    28.56    17.84
+#> Query only durations and distances: 2.709 sec elapsed
+rex[1:5,]
+#>      duration distance
+#> [1,]    21.39    12.70
+#> [2,]    34.23    19.49
+#> [3,]    20.74     9.60
+#> [4,]    11.05     4.81
+#> [5,]    14.85    11.56
 ```
+
