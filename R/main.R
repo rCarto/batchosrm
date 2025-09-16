@@ -103,18 +103,21 @@ routes <- function(x,
 #' }
 get_routes <- function(x, overview = FALSE, max_radius = 1000, server = "http://0.0.0.0:5000/", profile = "car"){
   x <- round(x, 5)
-  urls <- paste0(server, "route/v1/", profile, "/",
-                 x[,1],",",x[,2], ";",x[,3], ",", x[,4], "?overview=full")
-  cc <- crul::Async$new(urls = urls,
-                        opts = list(verbose = FALSE, useragent = "batchosrm",
-                                    connecttimeout = 1000000),
-                        headers = list("Content-Type" = "application/json"))
-  res <- cc$get()
+  urls <- paste0(server, "route/v1/", profile, "/", x[,1],",",x[,2], ";",x[,3], ",", x[,4],
+                 "?overview=full")
+
+  reqlist <- lapply(urls, function(x){crul::HttpRequest$new(url = x)$get()})
+
+  out <- crul::AsyncQueue$new(.list = reqlist, req_per_min = 1000000)
+
+  out$request()
+
+  res <- out$responses()
 
   f <- extract_route(overview)
+
   return(do.call(rbind, lapply(res, f, max_radius)))
 }
-
 
 extract_route <- function(overview){
   if (isFALSE(overview)){
