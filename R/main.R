@@ -106,7 +106,17 @@ get_routes <- function(x, overview = FALSE, max_radius = 1000, server = "http://
   urls <- paste0(server, "route/v1/", profile, "/", x[,1],",",x[,2], ";",x[,3], ",", x[,4],
                  "?overview=full")
 
-  reqlist <- lapply(urls, function(x){crul::HttpRequest$new(url = x)$get()})
+  reqlist <- lapply(urls, function(x) {
+    crul::HttpRequest$new(
+      url = x,
+      opts = list(
+        verbose = FALSE,
+        useragent = "batchosrm",
+        connecttimeout = 1000000
+      ),
+      headers = list("Content-Type" = "application/json")
+    )$get()
+  })
 
   out <- crul::AsyncQueue$new(.list = reqlist, req_per_min = 1000000)
 
